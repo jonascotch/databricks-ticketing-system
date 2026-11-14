@@ -1,0 +1,4 @@
+Flask>=3.0,<4.0
+psycopg[binary]>=3.2
+databricks-sdk>=0.81.0
+gunicorn>=22.0

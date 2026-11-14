@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Lakebase Support{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="{{ url_for('ticket_list') }}">Lakebase Support</a>
+      <span class="header-note">Databricks ticketing demo</span>
+    </header>
+    <main class="page">
+      {% if error %}
+        <div class="notice notice-error" role="alert">{{ error }}</div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

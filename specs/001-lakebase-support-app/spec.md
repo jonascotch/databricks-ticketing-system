@@ -83,6 +83,14 @@ Earn recognition for completing one or more of these:
 
 - Q: Which access model should the internal support app use? → A: Any signed-in Databricks workspace user can view and change all tickets and messages.
 
+### Session 2026-11-14
+
+- The assignment lists input validation and helpful errors as a bonus, but this project selects that bonus and treats it as required implementation scope.
+- Ticket `created_by` and message `author` values represent the signed-in user performing the action.
+- Render the sample app's full ticket message history without pagination.
+- Let the database handle concurrent status updates. If an update fails, show an error banner or toast and re-render the ticket with its latest database state.
+- Remove the elapsed-time and first-attempt percentage success measures; validate the required behavior through the workflow checks below instead.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - View and manage support tickets (Priority: P1)
@@ -129,15 +137,16 @@ An operator updates a ticket as it moves through support states, such as open, i
 
 1. **Given** a ticket is open, **When** the user changes its status, **Then** the record updates in Lakebase and the new status is reflected in the ticket list.
 2. **Given** the application is refreshed, **When** the page reloads, **Then** the latest ticket data and message history are still available.
+3. **Given** a status update fails while users are making competing updates, **When** the app handles the failure, **Then** it shows an error and renders the latest ticket state from Lakebase.
 
 ---
 
 ### Edge Cases
 
-- What happens when a user attempts to create a ticket with no title or no message content?
-- How does the system handle a ticket with many messages or a long discussion thread?
-- What happens when the app tries to load ticket data while the Lakebase connection is temporarily unavailable?
-- How should the system behave if a ticket status is updated concurrently by multiple users?
+- An empty ticket title or message is rejected with clear validation feedback and no database write.
+- Render a ticket's full message history without pagination for this sample app.
+- If Lakebase is unavailable, show an actionable error without exposing credentials or internal connection details.
+- Let the database handle concurrent status updates. If an update fails, show an error and render the latest ticket state.
 
 ## Requirements *(mandatory)*
 
@@ -170,10 +179,8 @@ An operator updates a ticket as it moves through support states, such as open, i
 ### Measurable Outcomes
 
 - **SC-001**: Users can view all tickets and their most recent status in a single screen without manual lookup or data export.
-- **SC-002**: A user can create a new ticket, add a message to it, and update its status in under 5 minutes during a normal support workflow.
-- **SC-003**: Ticket data remains available and correct after refreshing the app, with no loss of newly created records or updates.
-- **SC-004**: At least 90% of validation and core support actions succeed on the first attempt in a test environment with seeded and newly created records.
-- **SC-005**: The app demonstrates a complete support workflow from ticket creation through progress updates to status resolution using Lakebase-backed storage.
+- **SC-002**: Ticket data remains available and correct after refreshing the app, with no loss of newly created records or updates.
+- **SC-003**: The app demonstrates a complete support workflow from ticket creation through progress updates to status resolution using Lakebase-backed storage.
 
 ## Assumptions
 

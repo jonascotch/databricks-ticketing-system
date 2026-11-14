@@ -6,57 +6,49 @@
 
 ## Summary
 
-Build a small, server-rendered Flask ticketing app backed exclusively by Lakebase
-PostgreSQL. Reuse the reference app's compact Flask/templates/database-helper
-structure, but replace its static-password secret-URL connection and unrelated
-Massive API ingestion with a Databricks Apps Lakebase resource, app identity,
-and short-lived OAuth database credentials. Versioned SQL migrations and
-idempotent sample seeding establish the ticket schema; users can list tickets,
-view messages, create tickets, post messages, and update status.
+Build a small Flask app with Jinja templates and Lakebase PostgreSQL, following
+the compact structure of the user's Databricks Lakebase reference app. The app
+lets signed-in workspace users view tickets, inspect messages, create tickets,
+add messages, and update ticket status. Use a Databricks App Lakebase resource
+and its managed app identity for database access. Set up the two-table schema
+and repeatable sample data using small SQL files.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11
 
-**Primary Dependencies**: Flask, psycopg 3, Databricks SDK, Gunicorn,
-Flask-WTF, pytest
+**Primary Dependencies**: Flask, psycopg 3, Databricks SDK, Gunicorn
 
 **Storage**: Lakebase Autoscaling PostgreSQL; no separate operational store
 
-**Testing**: pytest unit tests, Flask test-client workflow tests, and an
-integration run against the configured Lakebase database
+**Testing**: Focused deployed-app workflow, input-validation, concurrency-failure feedback, and persistence checks
 
-**Target Platform**: Databricks Apps in the user's Databricks workspace; local
-development supported
+**Target Platform**: Databricks Apps in the user's Databricks workspace
 
 **Project Type**: Server-rendered internal web application
 
-**Performance Goals**: Meet the spec's under-five-minute ticket workflow;
-render the ticket list and selected ticket thread within 2 seconds at p95 for
-the expected small bootcamp dataset
+**Performance Goals**: No quantified response-time or throughput target for
+this course-scale sample app; render the complete message history without
+pagination.
 
-**Constraints**: All access requires Databricks app sign-in and app permission.
-All signed-in users share the same ticket access and write permissions.
-Database credentials are supplied through the Lakebase app resource, not
-committed or embedded in URLs. Validate browser form submissions and avoid
-logging ticket contents or credentials. Store the Flask/CSRF signing key in a
-Databricks secret resource.
+**Constraints**: Databricks authentication and app permissions gate access.
+All signed-in users can access the same tickets; the app records the signed-in
+user as creator or author. Database access uses the configured Lakebase app
+resource. Do not commit credentials or expose them in logs.
 
-**Scale/Scope**: Small internal bootcamp workload; at least three seeded
-tickets with at least two messages each, plus user-created records. No separate
-frontend service, public API, AI features, or advanced analytics in this phase.
+**Scale/Scope**: Small course assignment; at least three seeded tickets with
+at least two messages each. No separate frontend service, public API, AI
+features, or production operations framework.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle / constraint | Plan response | Gate |
 |---|---|---|
-| User Value & Ticket Clarity | Keep the UI focused on ticket list, thread, creation, messages, and status. | PASS |
-| Data Integrity & Traceability | Enforce relational constraints and field validation; store immutable messages and status-change audit events; use transactions and optimistic concurrency for status updates. | PASS |
-| Least-Privilege Security | Require Databricks sign-in/app access, use the app's least-privilege Lakebase resource identity, derive actor identity from trusted platform headers, protect form posts against CSRF, and keep secrets out of source/logs. | PASS |
-| Test-First Change Control | Add focused tests for validation, persistence, authorization identity, and stale concurrent updates before implementation changes. | PASS |
-| Reliable Operations & Observability | Provide a health endpoint, safe user-facing database errors, and structured server logs without ticket contents or credentials. | PASS |
+| User Value & Ticket Clarity | Focus on the required ticket list, ticket thread, creation, messages, and status update. | PASS |
+| Data Integrity & Traceability | Persist the required ticket/message fields and relationship, record signed-in actor and timestamps, validate required inputs, and seed sample records. | PASS |
+| Essential Databricks Security | Use Databricks sign-in/app permissions and the supported Lakebase app resource; do not hard-code credentials, expose them in logs, or add custom identity fallbacks. | PASS |
+| Focused Testing & Verification | Verify required workflows, input validation, status-update failure feedback, deployment, and persistence after refresh with concise smoke checks. | PASS |
+| Course-Scale Simplicity | Use small SQL setup files, a basic Flask app, and actionable ordinary error feedback; avoid production-scale controls. | PASS |
 
 No constitution violations are required by the proposed design.
 
@@ -79,64 +71,62 @@ specs/001-lakebase-support-app/
 
 ```text
 app.py                    # Flask routes and request/response behavior
-ticket_service.py         # Ticket and message operations / validation
-lakebase.py               # Lakebase resource authentication and query helpers
+lakebase.py               # Lakebase resource connection
 templates/                # Server-rendered ticket list and detail/forms
-static/                   # Small application stylesheet
+static/style.css          # Small application stylesheet
 db/
-└── migrations/           # Ordered SQL schema changes
-scripts/
-├── migrate.py            # Serialized, versioned schema migration runner
-└── seed_sample_data.py   # Idempotent sample-ticket and message seeding
-tests/
-├── unit/
-├── integration/
-└── conftest.py
+├── schema.sql            # Tickets and ticket_messages tables
+└── seed.sql              # Repeatable demonstration records
 app.yaml                  # Databricks Apps runtime and resource binding
 requirements.txt
 README.md
 ```
 
-**Structure Decision**: Use one Flask app with Jinja templates, a focused ticket
-service, and a separate Lakebase helper. This keeps the familiar shape of the
-referenced repository while avoiding a separate SPA/API deployment. The
-Massive-specific client, synchronization workflow, unrelated dependencies, and
-runtime table-creation calls are not carried forward. The repository currently
-contains Spec Kit metadata but no application source, so these are planned
-paths, not existing files.
+**Structure Decision**: Use one Flask app with Jinja templates and a small
+Lakebase helper, matching the reference app's overall shape. Keep schema and
+seed setup in plain SQL files that can be run in Lakebase SQL Editor. Do not
+carry forward its unrelated Massive API ingestion, static-password URL, or
+runtime table-creation behavior. These paths keep the application, database setup, and deployment configuration
+small and directly aligned with the assignment.
 
 ## Design Decisions
 
-- Use Lakebase Autoscaling as the only operational data store and bind it as a
-  Databricks App resource. Use the Databricks-supported OAuth credential flow
-  for app database access; do not copy the reference's static-password URL.
-- Keep server-rendered same-origin forms rather than adding a JavaScript SPA or
-  a separately deployed API. Use POST/Redirect/GET for successful writes.
-- Apply versioned SQL migrations outside request handlers. Seed fixed sample
-  identifiers idempotently so redeploys do not duplicate demonstration data.
-- The migration runner uses a database advisory lock and a migration version
-  table so simultaneous app starts do not apply the same change concurrently.
-- Restrict app entry through Databricks app permissions. Since the clarified
-  access model gives every signed-in workspace user identical ticket access,
-  database access uses the app identity; ticket/message actor attribution uses
-  the trusted forwarded identity, not a submitted form value.
-- Configure Flask-WTF's signing/CSRF key as an app secret resource; it is
-  separate from the Lakebase connection credentials.
-- Store status changes in a small audit table. Use a version value on tickets
-  for optimistic concurrency; a stale update is rejected with a reload message
-  instead of silently overwriting another user's change.
-- Support the three example states `open`, `in_progress`, and `resolved`.
-  Allow transitions among these valid states, including reopening resolved
-  tickets, since no narrower workflow policy was specified.
+- Use Lakebase Autoscaling as the operational data store and attach it through
+  Databricks App resources. Connect using the documented app identity/OAuth
+  flow rather than a static-password URL.
+- Keep server-rendered, same-origin forms for the required workflows. Use
+  straightforward form validation and redirects after successful writes. The
+  assignment lists validation and helpful errors as a bonus, but this project
+  selects that bonus and includes it in required implementation scope.
+- Create the `tickets` and `ticket_messages` tables from `db/schema.sql`, then
+  add the required sample records from `db/seed.sql`. If a separate SQL Editor
+  identity creates the tables, grant the app's Lakebase database role the
+  schema/table permissions needed to read and write them.
+- Use the app's shared database identity for queries. Record the signed-in
+  user performing the action in `tickets.created_by` or
+  `ticket_messages.author`; do not accept creator/author values from form
+  fields.
+- Render the complete message history without pagination for this sample app.
+- Allow the three example statuses (`open`, `in_progress`, and `resolved`).
+  Let the database handle concurrent status updates. If a status write fails,
+  re-read and render the latest ticket state with an error banner or toast.
+  No status audit table, optimistic concurrency mechanism, migration runner,
+  custom authentication fallback, or CSRF secret framework is required for
+  this assignment.
+- Never include credentials in application logs or user-facing errors.
+- Keep validation focused on the required deployed workflows and confirmation
+  that changes persist after refresh, including clear feedback for invalid
+  input and the latest ticket state after a failed status update. Broad unit,
+  integration, load, and resilience suites are not required.
 
 ## Constitution Check (Post-Design)
 
 | Principle / constraint | Design evidence | Gate |
 |---|---|---|
-| User value and clear workflow | Minimal ticket list, details/thread, and explicit create/message/status actions. | PASS |
-| Data integrity and traceability | Ticket-message foreign key, constraints, transactional status plus audit writes, actor/time fields, idempotent seed, optimistic version check. | PASS |
-| Least privilege and data protection | Databricks sign-in and app permission, app-scoped database role, trusted actor identity, CSRF protection, no secrets or message contents in logs. | PASS |
-| Test-first and validation | Unit and workflow tests cover invalid input, successful writes, persistence, and concurrent status conflicts. | PASS |
-| Reliable operation and observability | Health endpoint, deployment checks, useful sanitized errors, structured logs. | PASS |
+| User value and clear workflow | The UI covers ticket list, details/messages, creation, and status changes. | PASS |
+| Data integrity and traceability | Required fields, ticket-message foreign key, signed-in actor attribution, selected input-validation bonus, and repeatable seed data. | PASS |
+| Essential Databricks security | Databricks app permissions, managed Lakebase app resource, no committed credentials, and no credentials in logs or user-facing errors. | PASS |
+| Focused testing and verification | Deployed workflow checks cover required operations, validation, status-update failure feedback, and refresh persistence. | PASS |
+| Course-scale simplicity | Plain SQL setup and a small Flask application without production-only frameworks. | PASS |
 
 No constitution violations remain.

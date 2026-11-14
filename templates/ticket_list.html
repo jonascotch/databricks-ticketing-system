@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Support tickets{% endblock %}
+
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Workspace support</p>
+      <h1>Support tickets</h1>
+      <p class="muted">Browse active requests and their latest status.</p>
+    </div>
+    <span class="count-pill">{{ tickets|length }} tickets</span>
+  </div>
+
+  <section class="panel">
+    <h2>All tickets</h2>
+    {% if tickets %}
+      <div class="ticket-list">
+        {% for ticket in tickets %}
+          <a class="ticket-row" href="{{ url_for('ticket_detail', ticket_id=ticket.ticket_id) }}">
+            <span class="ticket-main">
+              <strong>{{ ticket.title }}</strong>
+              <span class="muted">Created by {{ ticket.created_by }} · {{ ticket.created_at.strftime("%Y-%m-%d %H:%M UTC") }}</span>
+            </span>
+            <span class="status status-{{ ticket.status }}">{{ ticket.status|replace("_", " ") }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">No tickets yet. Create the first one below.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel form-panel">
+    <h2>Create a ticket</h2>
+    <form method="post" action="{{ url_for('create_ticket') }}">
+      <label for="title">Title</label>
+      <input id="title" name="title" type="text" minlength="1" maxlength="200" value="{{ title_value }}" required>
+      <button type="submit">Create ticket</button>
+    </form>
+  </section>
+{% endblock %}

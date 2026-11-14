@@ -1,67 +1,48 @@
 # Quickstart: Lakebase Support App
 
-This guide is the end-to-end implementation and deployment validation target.
-The source files it references are planned in [plan.md](plan.md).
+This guide is the focused setup and end-to-end verification target. The source
+files it references are planned in [plan.md](plan.md).
 
 ## Prerequisites
 
-- A Databricks workspace with Databricks Apps and Lakebase Autoscaling available.
-- Permission to create/use a Lakebase database and Databricks App, and to grant
-  the app service principal least-privilege database access.
-- A Git folder or other supported app source location containing this project.
-- Python 3.11 for local checks.
+- A Databricks workspace with Databricks Apps and Lakebase Autoscaling.
+- Permission to create or use a Lakebase database and Databricks App.
+- Python 3.11 for dependency installation if needed.
 
 ## Configure and deploy
 
 1. Create or select a Lakebase Autoscaling database.
 2. Create a Databricks App and attach the Lakebase database as an app resource.
-   Grant the app's service principal only the database/schema privileges needed
-   for migrations and ticket reads/writes. Do not configure a static-password
-   URL in source control.
-3. Configure the app's allowed-user permission for signed-in workspace users.
-   The application records each user's trusted forwarded identity, while the
-   attached Lakebase resource uses the app identity.
-4. Install project dependencies and run the focused test suite:
-
-   ```text
-   python -m pip install -r requirements.txt
-   python -m pytest
-   ```
-
-5. Configure the Flask/CSRF signing key using a Databricks secret resource.
-   The Lakebase resource supplies the database connection credentials; do not
-   create or commit a static Lakebase URL.
-6. Deploy the app from the configured source using Databricks Apps. App startup
-   applies ordered SQL migrations under a database advisory lock, seeds the
-   demonstration data idempotently, then starts the production web server.
-   Confirm the health check succeeds before exercising ticket flows.
+   The resource provides the app's managed database identity and connection
+   settings; do not configure a static-password URL in source control.
+3. Run `db/schema.sql` and then `db/seed.sql` in Lakebase SQL Editor.
+   If the SQL Editor identity created the tables, grant the app's Lakebase role
+   the schema and table permissions it needs to read and write ticket data.
+4. Configure app permissions for the intended signed-in workspace users.
+5. Install dependencies from `requirements.txt` if needed and deploy the app
+   using Databricks Apps.
+6. Open the deployed app and confirm that the seeded ticket list loads.
 
 ## End-to-end acceptance run
 
-1. Open the deployed app as a signed-in workspace user. Confirm the ticket list
-   and statuses match the Lakebase records.
-2. Open one seeded ticket and confirm both seeded messages appear in
-   chronological order.
+1. Confirm the ticket list shows seeded records and their statuses.
+2. Open a seeded ticket and confirm at least two messages appear.
 3. Create a ticket with a non-empty title. Confirm it appears with `open`
-   status and the signed-in identity as creator.
-4. Add a non-empty message to that ticket. Confirm it appears with the signed-in
-   identity as author.
-5. Change the status to `in_progress`, then refresh. Confirm the status and
-   message remain persisted.
-6. Change the status again to `resolved`; confirm a status-history entry was
-   recorded. Submit an old version from a second browser/session and confirm
-   the stale update is rejected without replacing the newer status.
-7. Attempt to submit a blank title/message and an invalid status. Confirm
-   helpful validation appears and no database records are added.
-8. Confirm all actions work for any signed-in workspace user with app access,
-   while unsigned or unauthorized users cannot reach the application.
-9. Temporarily make the database unavailable in a non-production test
-   environment. Confirm users receive a safe error and logs identify the
-   failure without exposing secrets or message contents. Confirm `/healthz`
-   reports process liveness independently of database availability.
+   status and the signed-in user as creator.
+4. Add a non-empty message to that ticket. Confirm it appears in the thread
+   with the signed-in user as author.
+5. Change the status and refresh the app. Confirm the status and message remain
+   persisted in Lakebase.
+6. Submit a blank title or message and confirm the app shows a clear
+   validation error without creating a record.
+7. Open a ticket with several messages and confirm the full thread is shown
+   without pagination. When testing competing status updates, if an update
+   fails, confirm that the app shows an error and re-renders the ticket's
+   latest database state.
+8. Confirm a signed-in user with app access can use the workflows and a user
+   without app access cannot open the app.
 
 ## Expected outcome
 
-The deployed app reads and writes tickets and messages in Lakebase, records the
-signed-in actor, preserves data across refreshes, rejects invalid and stale
-updates, and provides a verifiable minimal support workflow.
+The deployed Databricks App reads and writes tickets and messages in Lakebase,
+records the signed-in creator/author, and preserves changes after refresh.

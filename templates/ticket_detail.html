@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ticket.title }} · Support ticket{% endblock %}
+
+{% block content %}
+  <p class="back-link"><a href="{{ url_for('ticket_list') }}">← All tickets</a></p>
+
+  <section class="panel ticket-summary">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">Support ticket</p>
+        <h1>{{ ticket.title }}</h1>
+        <p class="muted">Created by {{ ticket.created_by }} · {{ ticket.created_at.strftime("%Y-%m-%d %H:%M UTC") }}</p>
+      </div>
+      <span class="status status-{{ ticket.status }}">{{ ticket.status|replace("_", " ") }}</span>
+    </div>
+    <form class="status-form" method="post" action="{{ url_for('update_status', ticket_id=ticket.ticket_id) }}">
+      <label for="status">Update status</label>
+      <select id="status" name="status" required>
+        {% for status in statuses %}
+          <option value="{{ status }}" {% if status == ticket.status %}selected{% endif %}>{{ status|replace("_", " ") }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="button-secondary">Save status</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Conversation <span class="count-pill">{{ messages|length }}</span></h2>
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <article class="message">
+            <div class="message-meta">
+              <strong>{{ message.author }}</strong>
+              <time datetime="{{ message.created_at.isoformat() }}">{{ message.created_at.strftime("%Y-%m-%d %H:%M UTC") }}</time>
+            </div>
+            <p>{{ message.message_text }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">No messages have been added to this ticket.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel form-panel">
+    <h2>Add a message</h2>
+    <form method="post" action="{{ url_for('create_message', ticket_id=ticket.ticket_id) }}">
+      <label for="message_text">Message</label>
+      <textarea id="message_text" name="message_text" rows="4" minlength="1" maxlength="5000" required></textarea>
+      <button type="submit">Add message</button>
+    </form>
+  </section>
+{% endblock %}

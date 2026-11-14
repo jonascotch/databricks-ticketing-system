@@ -1,0 +1,292 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f3f6fb;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+a {
+  color: #3156a6;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem max(1.25rem, calc((100% - 1040px) / 2));
+  background: #132449;
+  color: #e8efff;
+}
+
+.brand {
+  color: #fff;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+
+.header-note,
+.muted {
+  color: #75819a;
+  font-size: 0.9rem;
+}
+
+.header-note {
+  color: #c3cee4;
+}
+
+.page {
+  width: min(100% - 2rem, 920px);
+  margin: 2rem auto 4rem;
+}
+
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0.45rem;
+  font-size: clamp(1.65rem, 3vw, 2.15rem);
+  letter-spacing: -0.035em;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.4rem;
+  color: #526eaa;
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.panel {
+  margin-top: 1.25rem;
+  padding: 1.4rem;
+  border: 1px solid #e1e7f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgb(26 43 77 / 4%);
+}
+
+.ticket-list {
+  display: grid;
+}
+
+.ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid #edf0f5;
+  color: inherit;
+}
+
+.ticket-main {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.status,
+.count-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: #edf2fb;
+  color: #37548b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-open {
+  background: #fff3d8;
+  color: #805711;
+}
+
+.status-in_progress {
+  background: #e4efff;
+  color: #25528d;
+}
+
+.status-resolved {
+  background: #e1f5e9;
+  color: #286440;
+}
+
+.empty-state {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f6f8fc;
+  color: #65718a;
+}
+
+form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+label {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid #cfd7e5;
+  border-radius: 7px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 3px solid rgb(75 116 204 / 20%);
+  border-color: #5278c6;
+}
+
+button,
+.button-link {
+  display: inline-flex;
+  justify-content: center;
+  width: fit-content;
+  padding: 0.68rem 1rem;
+  border: 0;
+  border-radius: 7px;
+  background: #315db5;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+button:hover,
+.button-link:hover {
+  background: #244a97;
+  text-decoration: none;
+}
+
+.status-form {
+  grid-template-columns: auto minmax(150px, 220px) auto;
+  align-items: center;
+  justify-content: start;
+  margin-top: 1.4rem;
+}
+
+.status-form label {
+  margin-right: 0.25rem;
+}
+
+.button-secondary {
+  background: #e9eef8;
+  color: #2b477b;
+}
+
+.button-secondary:hover {
+  background: #dce5f5;
+}
+
+.messages {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.message {
+  padding: 1rem;
+  border: 1px solid #e7ebf2;
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+
+.message p {
+  margin: 0.7rem 0 0;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.message-meta time {
+  color: #75819a;
+}
+
+.back-link {
+  margin-bottom: 0.5rem;
+}
+
+.notice {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+}
+
+.notice-error {
+  border: 1px solid #f0c4c4;
+  background: #fff0f0;
+  color: #8c2828;
+}
+
+.error-page {
+  padding: 2rem;
+}
+
+@media (max-width: 600px) {
+  .page-heading,
+  .ticket-row {
+    align-items: flex-start;
+  }
+
+  .ticket-row {
+    flex-direction: column;
+  }
+
+  .status-form {
+    grid-template-columns: 1fr;
+  }
+
+  .message-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}

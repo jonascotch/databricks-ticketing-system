@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Support app unavailable{% endblock %}
+
+{% block content %}
+  <section class="panel error-page">
+    <p class="eyebrow">Connection problem</p>
+    <h1>Support data is unavailable</h1>
+    <p>{{ message }}</p>
+    <a class="button-link" href="{{ url_for('ticket_list') }}">Try again</a>
+  </section>
+{% endblock %}
