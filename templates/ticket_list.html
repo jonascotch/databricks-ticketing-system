@@ -13,17 +13,18 @@
   </div>
 
   <section class="panel">
-    <h2>All tickets</h2>
-    <form class="ticket-filter" method="get" action="{{ url_for('ticket_list') }}">
-      <label for="status-filter">Filter by status</label>
-      <select id="status-filter" name="status">
-        <option value="all" {% if selected_status == "all" %}selected{% endif %}>All statuses</option>
-        {% for status in statuses %}
-          <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status|replace("_", " ")|title }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit">Apply filter</button>
-    </form>
+    <div class="ticket-list-heading">
+      <h2>All tickets</h2>
+      <form class="ticket-filter" method="get" action="{{ url_for('ticket_list') }}">
+        <label for="status-filter">Status</label>
+        <select id="status-filter" name="status" onchange="this.form.submit()">
+          <option value="all" {% if selected_status == "all" %}selected{% endif %}>All statuses</option>
+          {% for status in statuses %}
+            <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status|replace("_", " ")|title }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
     {% if tickets %}
       <div class="ticket-list">
         {% for ticket in tickets %}
