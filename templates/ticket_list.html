@@ -14,6 +14,16 @@
 
   <section class="panel">
     <h2>All tickets</h2>
+    <form class="ticket-filter" method="get" action="{{ url_for('ticket_list') }}">
+      <label for="status-filter">Filter by status</label>
+      <select id="status-filter" name="status">
+        <option value="all" {% if selected_status == "all" %}selected{% endif %}>All statuses</option>
+        {% for status in statuses %}
+          <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status|replace("_", " ")|title }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Apply filter</button>
+    </form>
     {% if tickets %}
       <div class="ticket-list">
         {% for ticket in tickets %}
@@ -27,13 +37,20 @@
         {% endfor %}
       </div>
     {% else %}
-      <p class="empty-state">No tickets yet. Create the first one below.</p>
+      <p class="empty-state">
+        {% if selected_status == "all" %}
+          No tickets yet. Create the first one below.
+        {% else %}
+          No tickets match this status filter.
+        {% endif %}
+      </p>
     {% endif %}
   </section>
 
   <section class="panel form-panel">
     <h2>Create a ticket</h2>
     <form method="post" action="{{ url_for('create_ticket') }}">
+      <input type="hidden" name="status" value="{{ selected_status }}">
       <label for="title">Title</label>
       <input id="title" name="title" type="text" minlength="1" maxlength="200" value="{{ title_value }}" required>
       <button type="submit">Create ticket</button>

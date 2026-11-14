@@ -208,6 +208,13 @@ button:hover,
   margin-top: 1.4rem;
 }
 
+.ticket-filter {
+  grid-template-columns: auto minmax(150px, 220px) auto;
+  align-items: center;
+  justify-content: start;
+  margin-bottom: 1rem;
+}
+
 .status-form label {
   margin-right: 0.25rem;
 }
@@ -282,6 +289,10 @@ button:hover,
   }
 
   .status-form {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-filter {
     grid-template-columns: 1fr;
   }
 

@@ -19,7 +19,7 @@ machine-to-machine ticket API.
 
 | Method and path | Behavior | Success |
 |---|---|---|
-| `GET /` | Show all tickets and the new-ticket form | HTML page; tickets read from Lakebase |
+| `GET /` | Show tickets and the new-ticket form; optional `status` query filters by `open`, `in_progress`, or `resolved` (`all` or omitted shows all) | HTML page; tickets read from Lakebase |
 | `GET /tickets/<ticket_id>` | Show ticket details and the complete message history without pagination | HTML page, or `404` for an unknown ticket |
 | `POST /tickets` | Create a ticket from a title | Validate title; create with status `open` and signed-in creator; redirect to new ticket |
 | `POST /tickets/<ticket_id>/messages` | Add a message to an existing ticket | Validate message and ticket; create with signed-in author; redirect to ticket |

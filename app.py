@@ -8,6 +8,30 @@ from lakebase import LakebaseConfigurationError, connect
 
 app = Flask(__name__)
 VALID_STATUSES = {"open", "in_progress", "resolved"}
+ALL_STATUS_FILTERS = VALID_STATUSES | {"all"}
+
+
+def load_tickets(conn, status_filter):
+    with conn.cursor() as cursor:
+        if status_filter == "all":
+            cursor.execute(
+                """
+                SELECT ticket_id, title, status, created_by, created_at
+                FROM tickets
+                ORDER BY created_at DESC, ticket_id
+                """
+            )
+        else:
+            cursor.execute(
+                """
+                SELECT ticket_id, title, status, created_by, created_at
+                FROM tickets
+                WHERE status = %s
+                ORDER BY created_at DESC, ticket_id
+                """,
+                (status_filter,),
+            )
+        return cursor.fetchall()
 
 
 def current_actor():
@@ -73,21 +97,18 @@ def healthz():
 
 @app.get("/")
 def ticket_list():
+    status_filter = request.args.get("status", "all")
+    if status_filter not in ALL_STATUS_FILTERS:
+        abort(400)
     with connect() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT ticket_id, title, status, created_by, created_at
-                FROM tickets
-                ORDER BY created_at DESC, ticket_id
-                """
-            )
-            tickets = cursor.fetchall()
+        tickets = load_tickets(conn, status_filter)
     return render_template(
         "ticket_list.html",
         tickets=tickets,
         error=None,
         title_value="",
+        selected_status=status_filter,
+        statuses=sorted(VALID_STATUSES),
     )
 
 
@@ -100,23 +121,20 @@ def ticket_detail(ticket_id):
 @app.post("/tickets")
 def create_ticket():
     title = request.form.get("title", "").strip()
+    status_filter = request.form.get("status", "all")
+    if status_filter not in ALL_STATUS_FILTERS:
+        abort(400)
     if not 1 <= len(title) <= 200:
         with connect() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT ticket_id, title, status, created_by, created_at
-                    FROM tickets
-                    ORDER BY created_at DESC, ticket_id
-                    """
-                )
-                tickets = cursor.fetchall()
+            tickets = load_tickets(conn, status_filter)
         return (
             render_template(
                 "ticket_list.html",
                 tickets=tickets,
                 error="Enter a title between 1 and 200 characters.",
                 title_value=title,
+                selected_status=status_filter,
+                statuses=sorted(VALID_STATUSES),
             ),
             400,
         )

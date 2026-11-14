@@ -26,20 +26,22 @@ files it references are planned in [plan.md](plan.md).
 ## End-to-end acceptance run
 
 1. Confirm the ticket list shows seeded records and their statuses.
-2. Open a seeded ticket and confirm at least two messages appear.
-3. Create a ticket with a non-empty title. Confirm it appears with `open`
+2. Filter the list by each status and confirm only tickets with that status
+   appear; select **All statuses** to restore the full list.
+3. Open a seeded ticket and confirm at least two messages appear.
+4. Create a ticket with a non-empty title. Confirm it appears with `open`
    status and the signed-in user as creator.
-4. Add a non-empty message to that ticket. Confirm it appears in the thread
+5. Add a non-empty message to that ticket. Confirm it appears in the thread
    with the signed-in user as author.
-5. Change the status and refresh the app. Confirm the status and message remain
+6. Change the status and refresh the app. Confirm the status and message remain
    persisted in Lakebase.
-6. Submit a blank title or message and confirm the app shows a clear
+7. Submit a blank title or message and confirm the app shows a clear
    validation error without creating a record.
-7. Open a ticket with several messages and confirm the full thread is shown
+8. Open a ticket with several messages and confirm the full thread is shown
    without pagination. When testing competing status updates, if an update
    fails, confirm that the app shows an error and re-renders the ticket's
    latest database state.
-8. Confirm a signed-in user with app access can use the workflows and a user
+9. Confirm a signed-in user with app access can use the workflows and a user
    without app access cannot open the app.
 
 ## Expected outcome

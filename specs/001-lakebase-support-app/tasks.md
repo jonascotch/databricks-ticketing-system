@@ -71,6 +71,7 @@
 - [X] T012 [P] Add a small application stylesheet in `static/style.css` and link it from `templates/base.html`.
 - [X] T013 [P] Document Lakebase resource setup, running `db/schema.sql` and `db/seed.sql`, app-role grants when SQL Editor creates the tables, app deployment, and workflow checks in `README.md`.
 - [ ] T014 Run the deployed-app acceptance steps in `specs/001-lakebase-support-app/quickstart.md`; verify required workflows and refresh persistence without timing or first-attempt percentage measurements.
+- [X] T015 Add a status filter to the ticket list, parameterize filtered reads, and preserve the selected filter on validation errors and ticket creation.
 
 T014 remains unverified because this workspace has no configured Databricks
 authentication or connected Lakebase endpoint; local mocked route checks do

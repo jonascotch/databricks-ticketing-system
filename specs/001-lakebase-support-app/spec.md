@@ -106,6 +106,7 @@ An internal support team member opens the application and immediately sees the c
 1. **Given** a Lakebase database containing multiple tickets, **When** the application loads, **Then** the user sees all tickets and their current status in a single list.
 2. **Given** a user selects a ticket from the list, **When** the selection is made, **Then** the ticket details and its associated message history are shown.
 3. **Given** a ticket has no messages yet, **When** the details are opened, **Then** the user sees an empty or clearly labeled message state rather than an error.
+4. **Given** tickets have different statuses, **When** the user selects a status filter, **Then** the list shows only tickets with that status, with an option to show all tickets.
 
 ---
 
@@ -167,6 +168,7 @@ An operator updates a ticket as it moves through support states, such as open, i
 - **FR-013**: The system MUST provide clear feedback when required input is missing or invalid.
 - **FR-014**: The system MUST be deployable as a Databricks App using Lakebase-backed operational data.
 - **FR-015**: Any signed-in Databricks workspace user MUST be able to view and change all tickets and messages; the system MUST record the signed-in user as the creator or author of each new ticket or message.
+- **FR-016**: The system MUST allow users to filter the ticket list by status and return to viewing all tickets.
 
 ### Key Entities *(include if feature involves data)*
 
