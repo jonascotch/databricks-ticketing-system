@@ -42,8 +42,11 @@ docker compose up --build
 Compose builds the Flask app container and starts a PostgreSQL container. On
 the database's first startup, it runs `db/schema.sql` and `db/seed.sql`
 automatically. Local mode uses the development-only `LOCAL_DEV_USER` identity
-and PostgreSQL credentials in `docker-compose.yml`; it does not request
-Databricks credentials or require the Databricks CLI.
+and PostgreSQL credentials in `docker-compose.yml`, selected by
+`DATABASE_AUTH_MODE=local_password`; it does not request Databricks credentials
+or require the Databricks CLI. The Databricks app sets
+`DATABASE_AUTH_MODE=lakebase_oauth` in `app.yaml`, which selects the managed
+Lakebase credential flow.
 
 To stop the foreground services, press **Ctrl+C**. To start them in the
 background, use `docker compose up --build --detach`; view app logs with

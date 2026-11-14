@@ -21,6 +21,7 @@ services:
     build: .
     environment:
       APP_ENV: development
+      DATABASE_AUTH_MODE: local_password
       LOCAL_DEV_USER: local-developer
       PGHOST: db
       PGPORT: 5432

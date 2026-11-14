@@ -9,3 +9,5 @@ health_check:
 env:
   - name: ENDPOINT_NAME
     valueFrom: postgres
+  - name: DATABASE_AUTH_MODE
+    value: lakebase_oauth

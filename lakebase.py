@@ -11,9 +11,15 @@ class LakebaseConfigurationError(RuntimeError):
 
 
 def connect():
-    local_dev = os.environ.get("APP_ENV") == "development"
+    auth_mode = os.environ.get("DATABASE_AUTH_MODE")
+    if auth_mode not in {"local_password", "lakebase_oauth"}:
+        raise LakebaseConfigurationError(
+            "DATABASE_AUTH_MODE must be local_password or lakebase_oauth."
+        )
+
+    local_password_mode = auth_mode == "local_password"
     required = ["PGHOST", "PGDATABASE", "PGUSER"]
-    if local_dev:
+    if local_password_mode:
         required.append("PGPASSWORD")
     else:
         required.append("ENDPOINT_NAME")
@@ -23,7 +29,7 @@ def connect():
             "Database connection configuration is incomplete."
         )
 
-    if local_dev:
+    if local_password_mode:
         password = os.environ["PGPASSWORD"]
     else:
         try:
@@ -43,7 +49,7 @@ def connect():
         user=os.environ["PGUSER"],
         password=password,
         sslmode=os.environ.get(
-            "PGSSLMODE", "disable" if local_dev else "require"
+            "PGSSLMODE", "disable" if local_password_mode else "require"
         ),
         row_factory=dict_row,
     )
