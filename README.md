@@ -51,7 +51,7 @@ For local browser testing, send the Databricks identity header that the
 platform reverse proxy supplies in deployment, for example:
 
 ```bash
-curl -H "X-Forwarded-User: your-databricks-user" http://localhost:8000/
+curl -H "X-Forwarded-Preferred-Username: your-databricks-user" http://localhost:8000/
 ```
 
 The app obtains a fresh OAuth database credential for each connection. Never

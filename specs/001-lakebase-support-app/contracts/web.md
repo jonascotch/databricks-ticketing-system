@@ -10,8 +10,9 @@ machine-to-machine ticket API.
   access.
 - Any signed-in user with app access can view and change all tickets and
   messages.
-- The server records the signed-in user's identity as ticket creator or
-  message author; clients cannot choose another identity through form fields.
+- The server records the `X-Forwarded-Preferred-Username` value as the signed-in
+  ticket creator or message author; clients cannot choose another identity
+  through form fields.
 - Database queries use the Lakebase app resource's shared app identity.
 
 ## Routes

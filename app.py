@@ -11,7 +11,7 @@ VALID_STATUSES = {"open", "in_progress", "resolved"}
 
 
 def current_actor():
-    actor = request.headers.get("X-Forwarded-User", "").strip()
+    actor = request.headers.get("X-Forwarded-Preferred-Username", "").strip()
     if not actor:
         abort(401)
     return actor
