@@ -1,3 +1,4 @@
+import os
 from uuid import UUID
 
 import psycopg
@@ -36,6 +37,8 @@ def load_tickets(conn, status_filter):
 
 def current_actor():
     actor = request.headers.get("X-Forwarded-Preferred-Username", "").strip()
+    if not actor and os.environ.get("APP_ENV") == "development":
+        actor = os.environ.get("LOCAL_DEV_USER", "").strip()
     if not actor:
         abort(401)
     return actor
